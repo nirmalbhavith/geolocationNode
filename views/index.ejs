@@ -1,0 +1,176 @@
+<html>
+<head>
+<link href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
+
+<style>
+ .results {
+     margin-top: 15px;;
+ }
+</style>
+
+</head>
+<body>
+<!------ Include the above in your HEAD tag ---------->
+
+<header>
+    <nav class="navbar navbar-inverse">
+        <div class="container-fluid">
+          <div class="navbar-header">
+            <a class="navbar-brand" href="#">Node Geo App</a>
+          </div>
+          </ul>
+        </div>
+      </nav>
+</header>
+
+<div class="container">
+
+    <div class="row">
+        <form action="#" method="post" novalidate="novalidate">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="row">
+                        <div class="col-lg-3 col-md-3 col-sm-12 p-0">
+                            <input type="text" class="form-control search-slt" placeholder="Enter Customer Name ex: atm, bank, restaurant" id="customer_name" required>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-12 p-0">
+                            <input type="text" class="form-control search-slt" placeholder="Enter Radius in meters" id="radius" required>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-12 p-0">
+                            <select class="form-control search-slt" id="lang" required>
+                                <option value="">Select Language</option>
+                                <option value="en" selected>English</option>
+                                <option value="es">Spanish</option>
+                                <option value="fr">French</option>
+                                
+                            </select>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-12 p-0">
+                            <button type="button" class="btn btn-danger wrn-btn search-btn">Search</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <section class="col-xs-12 col-sm-6 col-md-12 results">
+		
+
+    
+	</section>
+</div>
+
+<script>
+
+    $(window).load(function(){
+
+        getLocation();
+
+
+
+    });
+
+    var geolocation = {};
+
+    function getLocation() {
+        if(window.location.protocol == "http:" && navigator.geolocation)
+            navigator.geolocation.getCurrentPosition(function(position){
+                geolocation["lat"] = position.coords.latitude;
+                geolocation["long"] = position.coords.longitude;
+                localStorage.setItem("lat",geolocation.lat);
+                localStorage.setItem("long",geolocation.long);
+
+            });
+        else{
+            
+            alert("Can't access geolocation");
+        }
+    }
+
+    $(document).ready(function(){
+
+          // prevent form submit on enter
+
+          $(window).keydown(function(event){
+                if(event.keyCode == 13) {
+                event.preventDefault();
+                return false;
+                }
+           });
+         
+          $(".search-btn").on("click",function(e){
+
+               if(localStorage.getItem("lat") == null || localStorage.getItem("long") == null) {
+
+                    alert("We cannot get the geolocation please check your browser");
+
+                    return false;
+               }
+                
+                var payload =  {};
+
+                payload.lang          = $("#lang").val();
+                payload.customer_name = $("#customer_name").val();
+                payload.lat    = localStorage.getItem("lat");
+                payload.long   = localStorage.getItem("long");
+                payload.radius = $("#radius").val();
+
+                $(".results").html("<h3> Loading... </h3>");
+
+                $.ajax({
+
+                    url:"http://localhost:4300/nearby/location/search", 
+                    type:"POST",
+                    data:payload,
+                    success:function(response){
+                         
+                         response = JSON.parse(response);
+                         var html = "";
+                         
+                         console.log("results len : "+response.data.results.length )
+
+                         if(response.data.results.length > 0) {
+                             
+                             for( var i = 0; i < response.data.results.length; i++) {
+             
+                                 html += `<article class="search-result row">
+                                            <div class="col-xs-12 col-sm-12 col-md-7 excerpet">
+                                                <h3>Place Name : ${response.data.results[i].name}</h3>
+                                                <p>
+                                                 <strong>Lat / Lng</strong> :  ${response.data.results[i].geometry.location.lat} / ${response.data.results[i].geometry.location.lng}
+                                                 <br><br>
+                                                 <strong>Vicinity</strong>  :  ${response.data.results[i].vicinity} 
+                                                </p>	
+                                                    
+                                                 <hr>
+                                                </div>
+                                          </article>`;
+
+                                    if(i == 4){
+
+                                        break;
+                                    }
+                             }
+                             
+                             $(".results").html("");
+
+                             $(".results").html(html);
+
+                         }else {
+                             
+                             $(".results").html("<h3> No Results Found. </h3>");
+                             
+                         }
+                    }
+
+                })
+ 
+          });
+
+    });
+</script>
+</body>
+</html>
