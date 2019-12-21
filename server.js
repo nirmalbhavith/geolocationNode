@@ -3,7 +3,7 @@ var bodyParser = require("body-parser"); // Allows the form data into the applic
 
 const axios = require("axios"); // http client used to call third party services over end point
 
-const CircularJSON = require("circular-json"); //
+const CircularJSON = require("circular-json"); // JSON-Format
 
 var app = express();
 
@@ -17,7 +17,7 @@ app.get("/", function(req, res) {
 });
 
 app.post("/nearby/location/search", function(req, res) {
-  let api_key = "";
+  let api_key = ""; // palce the API_key
 
   axios
     .get(
