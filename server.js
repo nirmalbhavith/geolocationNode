@@ -17,7 +17,7 @@ app.get("/", function(req, res) {
 });
 
 app.post("/nearby/location/search", function(req, res) {
-  let api_key = "AIzaSyAdAnwAfMAEDU3igUPKq_v8QrapgzyNHT4";
+  let api_key = "";
 
   axios
     .get(
