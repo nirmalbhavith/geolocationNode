@@ -1,15 +1,21 @@
 var express = require("express");
-var bodyParser = require("body-parser"); // Allows the form data into the application
 
-const axios = require("axios"); // http client used to call third party services over end point
+var bodyParser = require("body-parser");
 
-const CircularJSON = require("circular-json"); // JSON-Format
+const axios = require("axios");
+
+const CircularJSON = require("circular-json");
+
+require("dotenv").config();
 
 var app = express();
 
-app.set("view engine", "ejs"); // set the template engine in Express
+const api_key = process.env.GOOGLE_API_KEY;
+
+app.set("view engine", "ejs");
 
 app.use(bodyParser.urlencoded({ extended: false })); // parse application/x-www-form-urlencoded
+
 app.use(bodyParser.json());
 
 app.get("/", function(req, res) {
@@ -17,7 +23,9 @@ app.get("/", function(req, res) {
 });
 
 app.post("/nearby/location/search", function(req, res) {
-  let api_key = ""; // palce the API_key
+  // console.log(
+  //   `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${req.body.lat},${req.body.long}&radius=${req.body.radius}&keyword=${req.body.customer_name}&language=${req.body.lang}&key=${api_key}`
+  // );
 
   axios
     .get(
@@ -33,7 +41,7 @@ app.post("/nearby/location/search", function(req, res) {
     });
 });
 
-var server = app.listen(4300, function() {
+var server = app.listen(process.env.PORT, function() {
   var host = server.address().address;
   var port = server.address().port;
 
